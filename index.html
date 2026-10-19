@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gifwave — say it with a loop</title>
+  <meta name="description" content="gifwave is a Giphy-style GIF search demo: 369 handpicked loops across twelve moods, instant local search, favorites, and downloads. Built with vanilla JavaScript." />
+  <meta property="og:title" content="gifwave — say it with a loop" />
+  <meta property="og:description" content="A handpicked vault of GIFs for every mood, moment, and group chat. Search it, save it, send it." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#08080c" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cff'/%3E%3Cstop offset='.55' stop-color='%23ff4fa3'/%3E%3Cstop offset='1' stop-color='%23d6ff5f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='26' fill='%2308080c'/%3E%3Cpath d='M35 62c0-7 6-13 13-13h4c7 0 13 6 13 13s-6 13-13 13h-6' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M65 38c0 7-6 13-13 13h-4c-7 0-13-6-13-13s6-13 13-13h6' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://media.giphy.com" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#feed">Skip to the GIFs</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#/" aria-label="gifwave home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <path d="M9.5 15.5a4.2 4.2 0 0 1 0-6l1.4-1.4a4.2 4.2 0 0 1 5.9 5.9l-1 1" />
+            <path d="M14.5 8.5a4.2 4.2 0 0 1 0 6l-1.4 1.4a4.2 4.2 0 0 1-5.9-5.9l1-1" />
+          </svg>
+        </span>
+        <span class="brand-word">gif<span>wave</span></span>
+      </a>
+
+      <form id="search-form" class="search" role="search">
+        <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.6-3.6" /></svg>
+        <label class="sr-only" for="search-input">Search GIFs</label>
+        <input id="search-input" type="search" placeholder="Search the vault — try “dance” or “wow”" autocomplete="off" spellcheck="false" />
+        <button id="search-clear" class="search-clear" type="button" aria-label="Clear search" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+        <kbd class="search-key" aria-hidden="true">/</kbd>
+      </form>
+
+      <div class="topbar-actions">
+        <button id="random-btn" class="action-btn" type="button" title="Surprise me">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h2.5c1.5 0 2.6.7 3.6 2.1l5.8 7.8c1 1.4 2.1 2.1 3.6 2.1H21" /><path d="M3 18h2.5c1.5 0 2.6-.7 3.6-2.1l.9-1.2" /><path d="m16 8 .9-1.2C17.9 5.4 19 4.7 20.5 4.7H21" /><path d="m18 2.5 2.5 2.2L18 7" /><path d="m18 15.5 2.5 2.2L18 20" /></svg>
+          <span class="action-label">Shuffle</span>
+        </button>
+        <button id="faves-btn" class="action-btn faves-btn" type="button" aria-pressed="false" aria-label="Saved GIFs, 0 saved">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.2-4.4-9.3-8.7C1.1 7.8 3 4.5 6.5 4.1c2-.2 4 .8 5.5 2.9 1.5-2.1 3.5-3.1 5.5-2.9 3.5.4 5.4 3.7 3.8 7.2C19.2 15.6 12 20 12 20Z" /></svg>
+          <span class="action-label">Saved</span>
+          <span id="fave-count" class="fave-badge" hidden>0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pulse" aria-hidden="true"></span>The reaction engine</p>
+        <h1>Say it with a<br /><em>loop.</em></h1>
+        <p class="lede">A handpicked vault of <b id="stat-gifs">369</b> GIFs for every mood, moment, and group chat. Search it, save it, send it.</p>
+        <div class="hero-actions">
+          <button id="hero-browse" class="primary-btn" type="button">
+            Browse the vault
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M6 14l6 6 6-6" /></svg>
+          </button>
+          <button id="hero-random" class="ghost-btn" type="button">Surprise me</button>
+        </div>
+        <ul class="hero-stats">
+          <li><b id="stat-gifs-2">369</b> loops</li>
+          <li><b id="stat-cats">12</b> moods</li>
+          <li><b>0</b> accounts</li>
+        </ul>
+      </div>
+      <div class="hero-stack" id="hero-stack" aria-hidden="true"></div>
+    </section>
+
+    <div class="ticker" id="ticker" aria-hidden="true">
+      <div class="ticker-track" id="ticker-track"></div>
+    </div>
+
+    <nav class="chips" id="chips" aria-label="Browse GIFs by mood"></nav>
+
+    <section class="feed" id="feed" aria-labelledby="feed-title">
+      <header class="feed-head">
+        <div class="feed-copy">
+          <p class="eyebrow" id="feed-eyebrow">The vault</p>
+          <h2 id="feed-title">Today’s wave</h2>
+          <p class="feed-sub" id="feed-sub">A handpicked mix of every mood in the vault.</p>
+        </div>
+        <button id="feed-random" class="ghost-btn feed-shuffle" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h2.5c1.5 0 2.6.7 3.6 2.1l5.8 7.8c1 1.4 2.1 2.1 3.6 2.1H21" /><path d="M3 18h2.5c1.5 0 2.6-.7 3.6-2.1l.9-1.2" /><path d="m16 8 .9-1.2C17.9 5.4 19 4.7 20.5 4.7H21" /><path d="m18 2.5 2.5 2.2L18 7" /><path d="m18 15.5 2.5 2.2L18 20" /></svg>
+          Surprise me
+        </button>
+      </header>
+
+      <div id="grid" class="grid" role="list"></div>
+      <div id="empty" class="empty" hidden></div>
+
+      <div id="endcap" class="endcap" hidden>
+        <button id="load-more" class="load-btn" type="button">Load more loops</button>
+        <p id="end-note" class="end-note" hidden></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot-top">
+      <span class="foot-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9.5 15.5a4.2 4.2 0 0 1 0-6l1.4-1.4a4.2 4.2 0 0 1 5.9 5.9l-1 1" /><path d="M14.5 8.5a4.2 4.2 0 0 1 0 6l-1.4 1.4a4.2 4.2 0 0 1-5.9-5.9l1-1" /></svg>
+      </span>
+      <span class="foot-word">gifwave</span>
+      <span class="foot-tag">a GIF search demo</span>
+    </div>
+    <p class="foot-note">A Giphy-style portfolio demo. GIFs are served from GIPHY’s CDN and remain the property of GIPHY and their creators. Search runs locally across this demo’s curated catalogue. Not affiliated with <a href="https://giphy.com" target="_blank" rel="noopener noreferrer">GIPHY</a>.</p>
+    <p class="foot-note">Built with vanilla JS by <a href="https://github.com/MuhammadAwais047" target="_blank" rel="noopener noreferrer">Muhammad Awais</a> · <a href="https://github.com/MuhammadAwais047/giphy-clone" target="_blank" rel="noopener noreferrer">Source</a></p>
+  </footer>
+
+  <dialog id="detail" class="detail" aria-labelledby="detail-title">
+    <div id="detail-body"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <p id="live" class="sr-only" aria-live="polite"></p>
+
+  <script src="catalog.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

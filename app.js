@@ -440,6 +440,7 @@
     img.alt = "";
     img.loading = "lazy";
     img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
     img.addEventListener(
       "load",
       () => {
@@ -654,6 +655,7 @@
       mount.dataset.fallback = "1";
       const img = document.createElement("img");
       img.alt = `${gif.title} — animated GIF`;
+      img.referrerPolicy = "no-referrer";
       img.src = CDN(gif.id, "giphy.webp");
       img.addEventListener("error", () => {
         img.alt = gif.title;
@@ -665,6 +667,7 @@
     if (reduceMotion.matches) {
       const img = document.createElement("img");
       img.alt = `${gif.title} — animated GIF`;
+      img.referrerPolicy = "no-referrer";
       img.src = CDN(gif.id, "giphy.webp");
       mount.appendChild(img);
       return mount;
@@ -677,6 +680,7 @@
     video.playsInline = true;
     video.setAttribute("playsinline", "");
     video.setAttribute("muted", "");
+    video.setAttribute("referrerpolicy", "no-referrer");
     video.setAttribute("aria-label", `${gif.title} — animated GIF`);
     video.poster = CDN(gif.id, "200w.webp");
     video.addEventListener("error", fallback);
